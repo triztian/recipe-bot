@@ -1,0 +1,223 @@
+{
+  "tools": {
+    "retrieve_recipes": {
+      "description": "Search recipe database using query and filters",
+      "parameters": {
+        "query": "string - search query for recipes",
+        "filters": "object - dietary restrictions, cuisine type, cooking time, etc."
+      },
+      "typical_outputs": ["recipe_list", "empty_results", "filtered_recipes"],
+      "common_failures": ["timeout", "empty_results", "irrelevant_matches", "filter_ignored"]
+    },
+    "query_customer_db": {
+      "description": "Query customer database for preferences and history",
+      "parameters": {
+        "customer_id": "string - unique customer identifier",
+        "query_type": "string - preferences, history, dietary_info, allergies"
+      },
+      "typical_outputs": ["customer_data", "preferences", "order_history"],
+      "common_failures": ["customer_not_found", "timeout", "permission_denied", "incomplete_data"]
+    },
+    "search_internet": {
+      "description": "Search the internet for cooking information",
+      "parameters": {
+        "query": "string - search query"
+      },
+      "typical_outputs": ["search_results", "cooking_tips", "recipe_links"],
+      "common_failures": ["timeout", "rate_limited", "no_results", "irrelevant_results"]
+    },
+    "get_dietary_restrictions": {
+      "description": "Get detailed dietary information for customer",
+      "parameters": {
+        "customer_id": "string - unique customer identifier"
+      },
+      "typical_outputs": ["dietary_restrictions", "allergies", "preferences"],
+      "common_failures": ["customer_not_found", "no_dietary_info", "outdated_info"]
+    }
+  },
+  
+  "failure_categories": {
+    "retrieval_failures": {
+      "description": "Problems with searching and retrieving information",
+      "subcategories": [
+        "empty_results",
+        "wrong_query_construction", 
+        "irrelevant_results",
+        "filter_misuse",
+        "query_too_broad",
+        "query_too_specific"
+      ]
+    },
+    "tool_integration_failures": {
+      "description": "Issues with tool calls and responses",
+      "subcategories": [
+        "api_timeout",
+        "malformed_request",
+        "error_propagation",
+        "state_inconsistency",
+        "tool_chain_failure",
+        "parameter_validation_error"
+      ]
+    },
+    "agent_logic_failures": {
+      "description": "Problems with agent reasoning and decision making",
+      "subcategories": [
+        "hallucination_after_empty_result",
+        "context_loss",
+        "tool_misuse",
+        "circular_reasoning",
+        "contradiction",
+        "incomplete_information_synthesis"
+      ]
+    },
+    "user_experience_failures": {
+      "description": "Issues that create poor user experience",
+      "subcategories": [
+        "unhelpful_response",
+        "user_confusion",
+        "repetitive_behavior",
+        "poor_error_recovery",
+        "ignoring_user_preferences",
+        "overly_complex_response"
+      ]
+    }
+  },
+
+  "specific_failure_modes": [
+    {
+      "id": "empty_recipe_hallucination",
+      "category": "agent_logic_failures",
+      "subcategory": "hallucination_after_empty_result",
+      "description": "Agent generates fake recipe when database returns no results",
+      "trigger": "retrieve_recipes returns empty results",
+      "agent_behavior": "Provides detailed recipe as if it was retrieved",
+      "user_impact": "Gets potentially dangerous or incorrect cooking instructions"
+    },
+    {
+      "id": "dietary_restriction_ignored",
+      "category": "retrieval_failures", 
+      "subcategory": "filter_misuse",
+      "description": "Agent retrieves recipes that violate known dietary restrictions",
+      "trigger": "User has known allergies but agent doesn't apply filters",
+      "agent_behavior": "Suggests recipes containing allergens",
+      "user_impact": "Potential health risk, loss of trust"
+    },
+    {
+      "id": "customer_data_timeout_ignored",
+      "category": "tool_integration_failures",
+      "subcategory": "error_propagation", 
+      "description": "Customer database times out but agent proceeds without preferences",
+      "trigger": "query_customer_db timeout error",
+      "agent_behavior": "Makes recommendations without knowing user preferences",
+      "user_impact": "Irrelevant suggestions, poor personalization"
+    },
+    {
+      "id": "internet_search_hallucination",
+      "category": "agent_logic_failures",
+      "subcategory": "hallucination_after_empty_result",
+      "description": "Agent claims to find internet info when search actually failed",
+      "trigger": "search_internet returns error or empty results",
+      "agent_behavior": "Presents made-up cooking tips as if from web search",
+      "user_impact": "Misinformation, potential cooking failures"
+    },
+    {
+      "id": "recipe_query_too_broad",
+      "category": "retrieval_failures",
+      "subcategory": "query_too_broad",
+      "description": "Agent constructs overly generic query, gets irrelevant results",
+      "trigger": "User asks specific question but agent searches too broadly",
+      "agent_behavior": "Returns generic recipes instead of specific answer",
+      "user_impact": "Doesn't solve user's actual problem"
+    },
+    {
+      "id": "tool_chain_breakdown",
+      "category": "tool_integration_failures",
+      "subcategory": "tool_chain_failure",
+      "description": "Agent starts tool chain but fails to complete it properly",
+      "trigger": "Multi-step process where intermediate tool fails",
+      "agent_behavior": "Provides incomplete answer based on partial information",
+      "user_impact": "Incomplete or incorrect guidance"
+    },
+    {
+      "id": "context_loss_in_conversation",
+      "category": "agent_logic_failures",
+      "subcategory": "context_loss",
+      "description": "Agent forgets earlier conversation context during tool usage",
+      "trigger": "Long conversation with multiple tool calls",
+      "agent_behavior": "Contradicts earlier statements or ignores previous preferences",
+      "user_impact": "Confusing, inconsistent experience"
+    },
+    {
+      "id": "wrong_tool_for_task",
+      "category": "agent_logic_failures",
+      "subcategory": "tool_misuse",
+      "description": "Agent uses inappropriate tool for the user's actual need",
+      "trigger": "User asks specific question but agent misunderstands intent",
+      "agent_behavior": "Calls wrong tool, gets irrelevant information",
+      "user_impact": "Doesn't get needed help, wastes time"
+    },
+    {
+      "id": "error_message_not_handled",
+      "category": "user_experience_failures",
+      "subcategory": "poor_error_recovery",
+      "description": "Agent receives tool error but doesn't explain to user",
+      "trigger": "Tool returns error message",
+      "agent_behavior": "Ignores error, provides generic response",
+      "user_impact": "User doesn't understand why help wasn't provided"
+    },
+    {
+      "id": "circular_tool_calling",
+      "category": "agent_logic_failures",
+      "subcategory": "circular_reasoning",
+      "description": "Agent gets stuck calling same tool repeatedly",
+      "trigger": "Tool returns insufficient data but agent keeps retrying same approach",
+      "agent_behavior": "Makes multiple identical tool calls",
+      "user_impact": "Conversation stalls, appears broken"
+    },
+    {
+      "id": "malformed_query_parameters",
+      "category": "tool_integration_failures",
+      "subcategory": "parameter_validation_error",
+      "description": "Agent sends invalid parameters to tools",
+      "trigger": "Agent constructs tool call with wrong parameter format",
+      "agent_behavior": "Tool call fails due to bad parameters",
+      "user_impact": "System appears broken, no helpful response"
+    },
+    {
+      "id": "preference_contradiction",
+      "category": "agent_logic_failures",
+      "subcategory": "contradiction",
+      "description": "Agent provides recommendations that contradict stated preferences",
+      "trigger": "Multiple tool calls return conflicting preference information",
+      "agent_behavior": "Suggests recipe that violates earlier stated preferences",
+      "user_impact": "Confusion, loss of trust in system"
+    }
+  ],
+
+  "conversation_scenarios": [
+    {
+      "name": "dietary_restriction_meal_planning",
+      "description": "User with specific dietary needs planning meals",
+      "typical_flow": ["user_request", "get_dietary_info", "retrieve_recipes", "recommendation"],
+      "failure_points": ["dietary_info_missing", "recipe_filters_ignored", "allergen_in_suggestion"]
+    },
+    {
+      "name": "cooking_technique_question", 
+      "description": "User asking about specific cooking methods or techniques",
+      "typical_flow": ["user_question", "search_internet", "retrieve_recipes", "explanation"],
+      "failure_points": ["search_timeout", "irrelevant_search_results", "technique_hallucination"]
+    },
+    {
+      "name": "personalized_recipe_recommendation",
+      "description": "User wants recipe based on past preferences and current ingredients",
+      "typical_flow": ["user_request", "query_customer_db", "retrieve_recipes", "personalized_suggestion"],
+      "failure_points": ["customer_data_timeout", "preference_ignored", "context_loss"]
+    },
+    {
+      "name": "ingredient_substitution_help",
+      "description": "User needs help substituting ingredients they don't have",
+      "typical_flow": ["user_question", "retrieve_recipes", "search_internet", "substitution_advice"],
+      "failure_points": ["no_matching_recipes", "bad_substitution_advice", "safety_ignored"]
+    }
+  ]
+} 
