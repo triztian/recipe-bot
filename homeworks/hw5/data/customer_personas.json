@@ -1,0 +1,315 @@
+{
+  "personas": [
+    {
+      "persona_id": "novice_college_student",
+      "name": "Alex Chen",
+      "age": 20,
+      "cooking_skill": "beginner",
+      "dietary_restrictions": ["vegetarian"],
+      "allergies": [],
+      "preferences": {
+        "cuisine_types": ["italian", "asian", "american"],
+        "cooking_time": "under_30_minutes",
+        "difficulty": "easy",
+        "ingredient_availability": "basic_pantry_items"
+      },
+      "conversation_style": {
+        "communication": "casual",
+        "detail_level": "needs_step_by_step",
+        "patience": "low",
+        "tech_savvy": "high"
+      },
+      "common_questions": [
+        "Quick pasta recipes for dinner",
+        "How to cook rice properly",
+        "Vegetarian protein sources",
+        "Basic knife skills"
+      ],
+      "failure_triggers": [
+        "complex_recipes",
+        "advanced_techniques", 
+        "expensive_ingredients",
+        "long_cooking_times"
+      ]
+    },
+    {
+      "persona_id": "busy_professional_parent",
+      "name": "Maria Rodriguez",
+      "age": 35,
+      "cooking_skill": "intermediate",
+      "dietary_restrictions": [],
+      "allergies": ["nuts"],
+      "preferences": {
+        "cuisine_types": ["mexican", "american", "mediterranean"],
+        "cooking_time": "30_to_45_minutes",
+        "difficulty": "easy_to_medium",
+        "family_size": 4,
+        "meal_prep_friendly": true
+      },
+      "conversation_style": {
+        "communication": "direct",
+        "detail_level": "concise_but_complete",
+        "patience": "medium",
+        "tech_savvy": "medium"
+      },
+      "common_questions": [
+        "Family dinner ideas for busy weeknights",
+        "Nut-free lunch recipes for kids",
+        "Meal prep for the week",
+        "How to batch cook efficiently"
+      ],
+      "failure_triggers": [
+        "nut_allergens_suggested",
+        "recipes_too_complicated_for_weeknight",
+        "ingredients_kids_wont_eat",
+        "no_consideration_for_time_constraints"
+      ]
+    },
+    {
+      "persona_id": "health_conscious_athlete",
+      "name": "David Kim",
+      "age": 28,
+      "cooking_skill": "intermediate",
+      "dietary_restrictions": ["high_protein", "low_carb"],
+      "allergies": ["dairy"],
+      "preferences": {
+        "cuisine_types": ["mediterranean", "asian", "american"],
+        "cooking_time": "flexible",
+        "difficulty": "medium",
+        "nutrition_focused": true,
+        "meal_prep": true
+      },
+      "conversation_style": {
+        "communication": "detail_oriented",
+        "detail_level": "wants_nutritional_info",
+        "patience": "high",
+        "tech_savvy": "high"
+      },
+      "common_questions": [
+        "High protein dairy-free recipes",
+        "Post-workout meal ideas", 
+        "Low-carb dinner options",
+        "Macro-friendly meal prep"
+      ],
+      "failure_triggers": [
+        "dairy_in_suggestions",
+        "high_carb_recipes",
+        "no_nutritional_information",
+        "low_protein_content"
+      ]
+    },
+    {
+      "persona_id": "elderly_traditional_cook",
+      "name": "Eleanor Johnson",
+      "age": 72,
+      "cooking_skill": "advanced",
+      "dietary_restrictions": ["low_sodium", "diabetic_friendly"],
+      "allergies": [],
+      "preferences": {
+        "cuisine_types": ["american", "european", "comfort_food"],
+        "cooking_time": "flexible",
+        "difficulty": "any",
+        "traditional_methods": true,
+        "scratch_cooking": true
+      },
+      "conversation_style": {
+        "communication": "formal",
+        "detail_level": "appreciates_traditional_techniques",
+        "patience": "very_high",
+        "tech_savvy": "low"
+      },
+      "common_questions": [
+        "Traditional family recipes with health modifications",
+        "Low-sodium versions of classic dishes",
+        "Diabetic-friendly desserts",
+        "Proper canning and preservation techniques"
+      ],
+      "failure_triggers": [
+        "high_sodium_suggestions",
+        "overly_modern_techniques",
+        "complicated_technology_references",
+        "dismissing_traditional_methods"
+      ]
+    },
+    {
+      "persona_id": "adventurous_foodie",
+      "name": "Priya Patel",
+      "age": 31,
+      "cooking_skill": "advanced",
+      "dietary_restrictions": [],
+      "allergies": ["shellfish"],
+      "preferences": {
+        "cuisine_types": ["indian", "thai", "korean", "ethiopian", "peruvian"],
+        "cooking_time": "flexible",
+        "difficulty": "challenging_welcome",
+        "authentic_ingredients": true,
+        "experimental": true
+      },
+      "conversation_style": {
+        "communication": "enthusiastic",
+        "detail_level": "wants_cultural_context",
+        "patience": "high",
+        "tech_savvy": "high"
+      },
+      "common_questions": [
+        "Authentic regional Indian recipes",
+        "Where to source specialty ingredients",
+        "Traditional fermentation techniques",
+        "Complex spice blend preparations"
+      ],
+      "failure_triggers": [
+        "shellfish_in_suggestions",
+        "inauthentic_fusion_recipes",
+        "oversimplified_traditional_dishes",
+        "basic_ingredient_substitutions"
+      ]
+    },
+    {
+      "persona_id": "budget_conscious_student",
+      "name": "Tyler Washington",
+      "age": 22,
+      "cooking_skill": "beginner",
+      "dietary_restrictions": [],
+      "allergies": [],
+      "preferences": {
+        "cuisine_types": ["american", "mexican", "italian"],
+        "cooking_time": "under_30_minutes",
+        "difficulty": "easy",
+        "budget": "very_low",
+        "bulk_cooking": true
+      },
+      "conversation_style": {
+        "communication": "casual",
+        "detail_level": "basic_instructions",
+        "patience": "medium",
+        "tech_savvy": "high"
+      },
+      "common_questions": [
+        "Cheap meals for under $5",
+        "How to make ramen more nutritious",
+        "Bulk cooking with basic ingredients",
+        "Leftover transformation ideas"
+      ],
+      "failure_triggers": [
+        "expensive_ingredients",
+        "specialized_equipment_needed",
+        "single_serving_recipes",
+        "gourmet_suggestions"
+      ]
+    },
+    {
+      "persona_id": "gluten_free_family",
+      "name": "Jennifer Murphy",
+      "age": 42,
+      "cooking_skill": "intermediate",
+      "dietary_restrictions": ["gluten_free", "celiac_safe"],
+      "allergies": ["gluten"],
+      "preferences": {
+        "cuisine_types": ["american", "italian", "mexican"],
+        "cooking_time": "30_to_60_minutes",
+        "difficulty": "medium",
+        "family_size": 5,
+        "kid_friendly": true
+      },
+      "conversation_style": {
+        "communication": "cautious",
+        "detail_level": "needs_ingredient_verification",
+        "patience": "medium",
+        "tech_savvy": "medium"
+      },
+      "common_questions": [
+        "Gluten-free versions of family favorites",
+        "Safe cross-contamination prevention",
+        "Kid-friendly gluten-free snacks",
+        "Gluten-free baking substitutions"
+      ],
+      "failure_triggers": [
+        "gluten_containing_ingredients",
+        "cross_contamination_risk",
+        "complicated_ingredient_checking",
+        "adult_only_flavors"
+      ]
+    },
+    {
+      "persona_id": "keto_dieter",
+      "name": "Robert Chen",
+      "age": 45,
+      "cooking_skill": "beginner_to_intermediate",
+      "dietary_restrictions": ["ketogenic", "very_low_carb"],
+      "allergies": [],
+      "preferences": {
+        "cuisine_types": ["american", "mediterranean", "asian"],
+        "cooking_time": "flexible",
+        "difficulty": "easy_to_medium",
+        "high_fat": true,
+        "macro_tracking": true
+      },
+      "conversation_style": {
+        "communication": "analytical",
+        "detail_level": "wants_macro_breakdown",
+        "patience": "medium",
+        "tech_savvy": "medium"
+      },
+      "common_questions": [
+        "Keto dinner recipes under 5g carbs",
+        "High-fat low-carb breakfast ideas",
+        "Keto-friendly substitutes for pasta",
+        "How to calculate net carbs"
+      ],
+      "failure_triggers": [
+        "high_carb_suggestions",
+        "no_macro_information",
+        "fruit_heavy_recipes",
+        "grain_based_meals"
+      ]
+    }
+  ],
+  
+  "interaction_patterns": {
+    "question_types": {
+      "recipe_request": {
+        "patterns": [
+          "I need a {cuisine} recipe for {occasion}",
+          "What's a good {meal_type} for {number} people?",
+          "Can you suggest something {cooking_time} and {difficulty}?"
+        ]
+      },
+      "technique_question": {
+        "patterns": [
+          "How do I {cooking_technique} {ingredient}?",
+          "What's the best way to {cooking_method}?",
+          "Why does my {dish} always turn out {problem}?"
+        ]
+      },
+      "substitution_request": {
+        "patterns": [
+          "What can I use instead of {ingredient}?",
+          "I don't have {ingredient}, what should I do?",
+          "Is there a {dietary_restriction} alternative to {ingredient}?"
+        ]
+      },
+      "troubleshooting": {
+        "patterns": [
+          "My {dish} turned out {problem}, what went wrong?",
+          "How do I fix {cooking_problem}?",
+          "Why is my {food} {texture_issue}?"
+        ]
+      }
+    },
+    
+    "follow_up_behaviors": {
+      "clarification_seekers": ["novice_college_student", "budget_conscious_student"],
+      "detail_validators": ["health_conscious_athlete", "gluten_free_family"],
+      "experience_sharers": ["elderly_traditional_cook", "adventurous_foodie"],
+      "efficiency_focused": ["busy_professional_parent", "keto_dieter"]
+    },
+
+    "failure_response_patterns": {
+      "immediate_confusion": ["novice_college_student", "budget_conscious_student"],
+      "persistent_questioning": ["health_conscious_athlete", "gluten_free_family"],
+      "polite_redirection": ["elderly_traditional_cook"],
+      "direct_correction": ["busy_professional_parent", "adventurous_foodie"],
+      "analytical_pushback": ["keto_dieter"]
+    }
+  }
+} 
