@@ -27,15 +27,6 @@ Please watch [this homework video](https://www.loom.com/share/30e5dced1afa467e87
 
 Add Phoenix packages to your `requirements.txt`:
 
-```txt
-arize-phoenix
-arize-phoenix-client
-arize-phoenix-evals
-arize-phoenix-otel
-openinference-instrumentation-litellm
-openinference-instrumentation
-```
-
 ```
 arize-phoenix-otel
 openinference-instrumentation-litellm
