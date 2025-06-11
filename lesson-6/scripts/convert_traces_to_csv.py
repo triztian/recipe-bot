@@ -142,7 +142,7 @@ def main():
     # Input file from hw5
     input_file = project_root / "homeworks" / "hw5" / "data" / "synthetic_traces.json"
     
-    # Output file in lesson-6
+    # Output file in lesson-7
     output_file = script_dir.parent / "data" / "traces.csv"
     
     # Check if input file exists

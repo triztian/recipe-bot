@@ -7,7 +7,7 @@ This lesson builds a custom interface to inspect and manually mark failure modes
 ## Directory Structure
 
 ```
-lesson-6/
+lesson-7/
 ├── data/
 │   ├── traces.csv                    # Converted CSV from synthetic traces
 │   └── inspection_results.json      # Results from manual inspection (future)
@@ -23,7 +23,7 @@ lesson-6/
 ### 1. Install Dependencies
 
 ```bash
-cd lesson-6
+cd lesson-7
 pip install -r requirements.txt
 ```
 
