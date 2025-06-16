@@ -10,7 +10,7 @@ app, rt = mui.fast_app(hdrs=mui.Theme.blue.headers())
 
 def list_traces():
     files = [f for f in os.listdir(DATASET_DIR) if f.endswith('.json')]
-    files.sort(reverse=True)
+    files.sort()  # Changed to sort in ascending order
     items = []
     for fname in files:
         path = os.path.join(DATASET_DIR, fname)
@@ -36,6 +36,15 @@ def index():
 
 def chat_bubble(m):
     is_user = m["role"] == "user"
+    if m["role"] == "system":
+        return ft.Details(
+            ft.Summary("System Prompt"),
+            ft.Div(
+                mui.render_md(m["content"]),
+                cls="chat-bubble chat-bubble-secondary"
+            ),
+            cls="chat chat-start"
+        )
     return ft.Div(
         ft.Div(
             mui.render_md(m["content"]),
@@ -80,10 +89,10 @@ def annotate(fname:str):
     axial_code_options = get_unique_axial_coding_codes()
     # Get next and previous files
     files = [f for f in os.listdir(DATASET_DIR) if f.endswith('.json')]
-    files.sort(reverse=True)
+    files.sort()  # Changed to sort in ascending order
     current_idx = files.index(fname)
-    next_file = files[current_idx - 1] if current_idx > 0 else files[-1]
-    prev_file = files[current_idx + 1] if current_idx < len(files) - 1 else files[0]
+    next_file = files[current_idx + 1] if current_idx < len(files) - 1 else files[0]
+    prev_file = files[current_idx - 1] if current_idx > 0 else files[-1]
     return mui.Container(
         mui.DivFullySpaced(
             ft.A("Previous", href=annotate.to(fname=prev_file), cls=mui.AT.classic),
@@ -124,9 +133,3 @@ def theme():
     return mui.ThemePicker()
 
 ft.serve()
-
-
-
-
-
-
