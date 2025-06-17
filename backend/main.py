@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 from typing import Final, List, Dict
+import datetime
+import json
 
 from fastapi import FastAPI, HTTPException, status
 from fastapi.responses import HTMLResponse
@@ -68,9 +70,20 @@ async def chat_endpoint(payload: ChatRequest) -> ChatResponse:  # noqa: WPS430
             detail=str(exc),
         ) from exc
 
-    # Convert dicts back to Pydantic models for the response
-    response_messages: List[ChatMessage] = [ChatMessage(**msg) for msg in updated_messages_dicts]
-    return ChatResponse(messages=response_messages)
+    response = ChatResponse(messages=[ChatMessage(**msg) for msg in updated_messages_dicts])
+
+    # Save trace (request and response) in one place
+    traces_dir = Path(__file__).parent.parent / "annotation" / "traces"
+    traces_dir.mkdir(parents=True, exist_ok=True)
+    ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+    trace_path = traces_dir / f"trace_{ts}.json"
+    with open(trace_path, "w") as f:
+        json.dump({
+            "request": payload.model_dump(),
+            "response": response.model_dump()
+        }, f)
+
+    return response
 
 
 @app.get("/", response_class=HTMLResponse)
