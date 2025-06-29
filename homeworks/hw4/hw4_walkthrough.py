@@ -1,10 +1,10 @@
 import marimo
 
 __generated_with = "0.12.8"
-app = marimo.App(width="medium")
+app = marimo.App(width="columns")
 
 
-@app.cell
+@app.cell(column=0)
 def _():
     import marimo as mo
     import pandas as pd
@@ -62,26 +62,24 @@ def _(mo):
     return
 
 
-@app.cell
+@app.cell(column=1, hide_code=True)
 def _(mo):
     mo.md(
-        r"""
-        ## Part 0: Download the Dataset
+        """
+        ## Part 1: Process Recipe Data
 
-        I downloaded as zip and placed the rawrecipes.csvraw_recipes.csv in the datadata folder.  You can automate this with the kaggle python API, but I don't think it's neccesary for 1 time download tasks.  Keep it simple!
+        - **Input**: `data/RAW_recipes.csv` (Kaggle dataset)
+        - **Script**: `scripts/process_recipes.py`
+        - **Output**: `data/processed_recipes.json`
+        - **Purpose**: Turn raw dataset from kaggle into filtered and cleaned dataset ready to use
         """
     )
     return
 
 
-@app.cell
-def _():
-    return
-
-
-@app.cell
-def _(BASE_PATH, pd):
-    pd.read_csv(BASE_PATH/'data'/'RAW_recipes.csv')
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""### Input""")
     return
 
 
@@ -89,7 +87,9 @@ def _(BASE_PATH, pd):
 def _(mo):
     mo.md(
         r"""
-        What's in the recipe dataset that's useful for a chatbot:
+        I downloaded as zip and placed the in the data folder manually. You can automate this with the kaggle python API, but I don't think it's neccesary for 1 time download tasks. Keep it simple!
+
+        It has:
 
         - **Recipe names** - titles users can search for
         - **Ingredients lists** - what you need to make each dish
@@ -103,21 +103,42 @@ def _(mo):
 
 
 @app.cell
+def _(BASE_PATH, pd):
+    pd.read_csv(BASE_PATH/'data'/'RAW_recipes.csv')
+    return
+
+
+@app.cell(hide_code=True)
 def _(mo):
-    mo.md("""## Part 1: Process Recipe Data""")
+    mo.md(r"""### Script""")
     return
 
 
 @app.cell
-def _(BASE_PATH, json, mo):
+def _(mo):
+    mo.md(
+        """
+        The raw data is processed by `scripts/process_recipes.py`.  This is a data cleaning step largely.
+
+        - Remove extra whitspase.
+        - Parses ingredient list, steps, and lists
+        - Get longest recipes
+        - Save in a standard format
+        """
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""### Ouptut""")
+    return
+
+
+@app.cell
+def _(BASE_PATH, json):
     # Load processed recipes
     recipes = json.load(open(BASE_PATH/'data'/'processed_recipes.json', 'r'))
-
-    mo.md(f"""
-    **Loaded {len(recipes)} recipes from the dataset**
-
-    Let's explore the data interactively:
-    """)
     return (recipes,)
 
 
@@ -133,7 +154,7 @@ def _(mo, recipes):
     )
 
     mo.md(f"""
-    ### Interactive Recipe Browser
+    #### Interactive Recipe Browser
 
     {recipe_index}
     """)
@@ -156,14 +177,14 @@ def _(mo, recipe_index, recipes):
     <details>
     <summary><b>Ingredients</b></summary>
 
-    {chr(10).join(f"- {ing}" for ing in selected_recipe['ingredients'])}
+    {'<br>'.join(f"- {ing}" for ing in selected_recipe['ingredients'])}
 
     </details>
 
     <details>
     <summary><b>Instructions</b></summary>
 
-    {chr(10).join(f"{i+1}. {step}" for i, step in enumerate(selected_recipe['steps']))}
+    {'<br>'.join(f"{i+1}. {step}" for i, step in enumerate(selected_recipe['steps']))}
 
     </details>
 
@@ -177,361 +198,231 @@ def _(mo, recipe_index, recipes):
     return (selected_recipe,)
 
 
-@app.cell
+@app.cell(column=2, hide_code=True)
 def _(mo):
     mo.md(
         """
-        ### Recipe Processing Pipeline
+        ## Part 2: Generate Synthetic Queries
 
-        Key steps in processrecipes.pyprocess_recipes.py:
-        - Parse CSV with proper handling of nested lists
-        - Clean malformed data (nutrition, ingredients)
-        - Select longest recipes by combined text length
-        - Create searchable text representation
+        - **Input**: `data/processed_recipes.json`
+        - **Script**: `scripts/generate_queries.py`
+        - **Output**: `data/synthetic_queries.json` (queries with ground truth)
+        - **Purpose**: LLM extracts facts → generates natural questions
         """
     )
     return
 
 
-@app.cell
-def _(mo, pd, recipes):
-    # Create recipe statistics
-    recipe_stats = pd.DataFrame([{
-        'name': r['name'],
-        'text_length': len(r['name'] + ' '.join(r['ingredients']) + ' '.join(r['steps'])),
-        'n_ingredients': r['n_ingredients'],
-        'n_steps': r['n_steps'],
-        'minutes': r['minutes']
-    } for r in recipes])
-
-    mo.md("""
-    ### Recipe Dataset Statistics
-
-    Distribution of recipe characteristics:
-    """)
-    return (recipe_stats,)
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""### Script""")
+    return
 
 
 @app.cell
-def _(mo, px, recipe_stats):
-    # Create interactive visualizations
-    fig1 = px.histogram(
-        recipe_stats, 
-        x='text_length', 
-        nbins=30,
-        title='Distribution of Recipe Text Length',
-        labels={'text_length': 'Combined Text Length (characters)', 'count': 'Number of Recipes'}
-    )
-    fig1.update_layout(height=400)
+def _(mo):
+    mo.md(r"""`scripts/generate_queries.py` generates synthetic queries in 2 steps""")
+    return
 
-    fig2 = px.scatter(
-        recipe_stats,
-        x='n_ingredients',
-        y='n_steps',
-        size='minutes',
-        hover_data=['name'],
-        title='Recipe Complexity: Ingredients vs Steps',
-        labels={'n_ingredients': 'Number of Ingredients', 'n_steps': 'Number of Steps'}
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
+        #### Step 1
+        Start by using extracting specific details from the query with this prompt
+        """
     )
-    fig2.update_layout(height=400)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
+        Analyze this recipe and identify 1-2 specific, technical details that would be difficult to generate from scratch but are clearly answerable by this exact recipe. Focus on:
+
+        1. **Specific cooking techniques/methods** (e.g., "marinate for 4 hours", "bake at 375°F for exactly 25 minutes")
+        2. **Appliance settings** (e.g., "air fryer at 400°F for 12 minutes", "pressure cook for 8 minutes")  
+        3. **Ingredient preparation details** (e.g., "slice onions paper-thin", "whip cream to soft peaks")
+        4. **Timing specifics** (e.g., "rest dough for 30 minutes", "simmer for 45 minutes")
+        5. **Temperature precision** (e.g., "internal temp 165°F", "oil heated to 350°F")
+
+        Return the most distinctive fact(s) that someone might specifically search for:
+        """
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
+        #### Step 2
+
+        Then from the recipe and the facts that were extracted, create the synthetic querye
+        """
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
+        Create a realistic, specific user query that a home cook might ask, which can ONLY be answered well by this exact recipe. The query should:
+
+        1. Sound natural and conversational (like a real person asking)
+        2. Focus on the specific technical detail: "{salient_fact}"
+        3. Be challenging - requiring this exact recipe's information to answer properly
+        4. Avoid mentioning the recipe name directly
+
+        Context:
+        - Recipe: {recipe_name}
+        - Key ingredients: {ingredients}
+        - Salient fact: {salient_fact}
+
+        Examples of good query styles:
+        - "What temperature and time for air fryer frozen chicken tenders?"
+        - "How long should I marinate beef for Korean bulgogi?"
+        - "What's the exact oven temperature for crispy roasted vegetables?"
+        - "How do I get the right consistency for homemade pasta dough?"
+
+        Generate ONE specific query:
+        """
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""### Output""")
+    return
+
+
+@app.cell
+def _(BASE_PATH, json, recipes):
+    synthetic_queries = json.load(open(BASE_PATH/'data'/'synthetic_queries.json', 'r'))
+    recipe_lookup = {r['id']: r for r in recipes}
+    return recipe_lookup, synthetic_queries
+
+
+@app.cell
+def _(mo, synthetic_queries):
+    # Create query selector
+    query_selector = mo.ui.slider(
+        start=0,
+        stop=len(synthetic_queries)-1,
+        value=0,
+        label="Query Index",
+        show_value=True
+    )
 
     mo.md(f"""
-    {mo.ui.plotly(fig1)}
+    #### Browse Queries
 
-    {mo.ui.plotly(fig2)}
+    {query_selector}
     """)
-    return fig1, fig2
+    return (query_selector,)
+
+
+@app.cell
+def _(mo, query_selector, recipe_lookup, synthetic_queries):
+    # Display selected query
+    selected = synthetic_queries[query_selector.value]
+    source_recipe = recipe_lookup.get(selected['source_recipe_id'])
+
+    mo.md(f"""
+    #### Query #{query_selector.value + 1}
+
+    **🔍 Query Text:**
+    > {selected['query']}
+
+    **🎯 Target Recipe:** {selected['source_recipe_name']} (ID: {selected['source_recipe_id']})
+
+    **⏱️ Cooking Time:** {selected['cooking_time']} minutes
+
+    <br>**💡 Key Facts This Query Tests:**<br>
+
+    {selected['salient_fact']}
+
+    **🏷️ Recipe Tags:** {', '.join(selected['tags'][:10])}{'...' if len(selected['tags']) > 10 else ''}
+
+    <details>
+    <summary><b>📝 Full Recipe Details</b></summary>
+
+    **Ingredients ({len(selected['ingredients'])}):**<br>
+    {'<br>'.join(f"- {ing}" for ing in selected['ingredients'])}
+
+    <br>**Steps ({source_recipe['n_steps'] if source_recipe else 'N/A'}):**<br>
+    {'<br>'.join(f"{i+1}. {step}" for i, step in enumerate(source_recipe['steps']))}
+    {'<br>...' if source_recipe and len(source_recipe['steps']) > 5 else ''}
+
+    </details>
+    """)
+    return selected, source_recipe
+
+
+@app.cell
+def _():
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        """
+        ## Part 3: Build BM25 Retrieval Engine
+
+        - **Input**: Recipe texts from `processed_recipes.json`
+        - **Script**: `backend/retrieval.py`
+        - **Output**: BM25 search index (in memory)
+        - **Function**: `retrieve_bm25(query, texts, index)`
+        """
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""### Script""")
+    return
 
 
 @app.cell
 def _(mo):
     mo.md(
         """
-        ## Part 2: Build BM25 Retrieval Engine
+        To learn more check out some of my content on retrieval:
 
-        ### What is BM25?
+        - **BM25 Foundations**: [Here](https://www.kentro-learn.com/free-content/keyword-search-fundamentals) is a blog post and video discussion that covers the foundations of BM25 and how it works going from text processing, tokenization, TF-IDF, and up to BM25.
 
-        - **Best Match 25**: Classic information retrieval algorithm
-        - Ranks documents by relevance to query terms
-        - Considers:
-          - Term frequency (how often query words appear)
-          - Inverse document frequency (rarity of terms)
-          - Document length normalization
+        - **Building a Practical Search MVP**:  [Here](https://isaacflath.com/blog/blog_post?fpath=posts%2F2025-03-17-Retrieval101.ipynb) is a blog post that steps through a full MVP for a search system incrementally explainin everything along the way.  This include a hybrid keyword + semantic search for initial ranking, then a cross-encoder as the reranking step.
         """
     )
     return
 
 
-@app.cell
-def _(recipes):
-    # Create searchable text function
-    def create_recipe_text(recipe):
-        """Create searchable text from recipe components"""
-        parts = [
-            recipe['name'],
-            ' '.join(recipe['ingredients']),
-            ' '.join(recipe['steps']),
-            ' '.join(recipe['tags'])
-        ]
-        return ' '.join(parts)
-
-    # Create recipe texts
-    recipe_texts = [create_recipe_text(r) for r in recipes]
-    return create_recipe_text, recipe_texts
-
-
-@app.cell
-def _(mo, recipe_texts):
-    # Import retrieval functions
-    try:
-        from retrieval import retrieve_bm25, build_bm25_index
-
-        # Build BM25 index
-        bm25_index = build_bm25_index(recipe_texts)
-        retrieval_available = True
-
-        mo.md("""
-        ✅ **BM25 index built successfully**
-
-        Let's test the retrieval with an interactive query:
-        """)
-    except ImportError:
-        retrieval_available = False
-        bm25_index = None
-        retrieve_bm25 = None
-
-        mo.md("""
-        ⚠️ **Retrieval module not available**
-
-        The retrieval functionality requires the backend module. Showing demo mode instead.
-        """)
-    return bm25_index, build_bm25_index, retrieval_available, retrieve_bm25
-
-
-@app.cell
-def _(mo, retrieval_available):
-    # Create query input widget
-    if retrieval_available:
-        query_input = mo.ui.text(
-            placeholder="Enter your search query (e.g., 'air fryer chicken wings crispy')",
-            label="Search Query",
-            full_width=True
-        )
-
-        top_n_select = mo.ui.select(
-            options=[1, 3, 5, 10],
-            value=5,
-            label="Number of results"
-        )
-
-        mo.md(f"""
-        ### Interactive Recipe Search
-
-        {query_input}
-
-        {top_n_select}
-        """)
-    else:
-        query_input = None
-        top_n_select = None
-        mo.md("### Recipe Search (Demo Mode)")
-    return query_input, top_n_select
-
-
-@app.cell
-def _(
-    bm25_index,
-    mo,
-    query_input,
-    recipe_texts,
-    recipes,
-    retrieval_available,
-    retrieve_bm25,
-    top_n_select,
-):
-    # Perform search and display results
-    if retrieval_available and query_input and query_input.value:
-        results = retrieve_bm25(
-            query_input.value, 
-            recipe_texts, 
-            bm25_index, 
-            top_n=top_n_select.value
-        )
-
-        results_html = f"<h4>Search Results for: '{query_input.value}'</h4>"
-        for i, (idx, score) in enumerate(results):
-            recipe = recipes[idx]
-            results_html += f"""
-            <div style='border: 1px solid #ddd; padding: 10px; margin: 10px 0; border-radius: 5px;'>
-                <h5>{i+1}. {recipe['name']}</h5>
-                <p><b>Score:</b> {score:.3f} | <b>Time:</b> {recipe['minutes']} min | 
-                   <b>Ingredients:</b> {recipe['n_ingredients']} | <b>Steps:</b> {recipe['n_steps']}</p>
-                <p><i>{recipe_texts[idx][:200]}...</i></p>
-            </div>
-            """
-
-        mo.Html(results_html)
-    else:
-        mo.md("*Enter a query above to search recipes*")
-    return i, idx, recipe, results, results_html, score
-
-
-@app.cell
-def _(mo):
-    mo.md(
-        """
-        ## Part 3: Generate Synthetic Queries
-
-        ### Query Generation Strategy
-
-        Two-step process:
-        1. **Extract salient facts** from recipes
-           - Cooking methods and temperatures
-           - Specific timings
-           - Key techniques
-        2. **Generate realistic queries** that would need those facts
-           - Natural language questions
-           - Focus on specificity
-        """
-    )
-    return
-
-
-@app.cell
-def _(json, mo):
-    # Load synthetic queries
-    try:
-        with open('data/synthetic_queries.json', 'r') as f:
-            synthetic_queries = json.load(f)
-        queries_loaded = True
-
-        mo.md(f"""
-        **Loaded {len(synthetic_queries)} synthetic queries**
-
-        Let's explore them interactively:
-        """)
-    except FileNotFoundError:
-        synthetic_queries = []
-        queries_loaded = False
-        mo.md("⚠️ **Synthetic queries not found.** Run ≥≠ratequeries.pygenerate_queries.py first.")
-    return f, queries_loaded, synthetic_queries
-
-
-@app.cell
-def _(mo, queries_loaded, synthetic_queries):
-    if queries_loaded and synthetic_queries:
-        # Query browser
-        query_index = mo.ui.slider(
-            start=0,
-            stop=min(len(synthetic_queries)-1, 99),
-            value=0,
-            label="Query Index",
-            show_value=True
-        )
-
-        mo.md(f"""
-        ### Query Browser
-
-        {query_index}
-        """)
-    else:
-        query_index = None
-    return (query_index,)
-
-
-@app.cell
-def _(json, mo, queries_loaded, query_index, recipes, synthetic_queries):
-    if queries_loaded and query_index:
-        selected_query = synthetic_queries[query_index.value]
-        target_recipe = recipes[selected_query['recipe_index']]
-
-        mo.md(f"""
-        **Query #{query_index.value + 1}**
-
-        📝 **Query**: "{selected_query['query']}"
-
-        🎯 **Target Recipe**: {target_recipe['name']}
-
-        💡 **Salient Facts**:
-        {chr(10).join(f"- {fact}" for fact in selected_query['salient_facts'])}
-
-        <details>
-        <summary><b>Target Recipe Details</b></summary>
-
-        {json.dumps(target_recipe, indent=2)[:500]}...
-
-        </details>
-        """)
-    return selected_query, target_recipe
-
-
-@app.cell
-def _(mo, queries_loaded, synthetic_queries):
-    if queries_loaded and synthetic_queries:
-        # Analyze query types
-        query_categories = {
-            'temperature': 0,
-            'timing': 0,
-            'technique': 0,
-            'appliance': 0,
-            'ingredient': 0,
-            'other': 0
-        }
-
-        for q in synthetic_queries[:100]:
-            query_lower = q['query'].lower()
-            categorized = False
-
-            if any(word in query_lower for word in ['temperature', 'degrees', 'heat', '°']):
-                query_categories['temperature'] += 1
-                categorized = True
-            elif any(word in query_lower for word in ['how long', 'minutes', 'hours', 'time']):
-                query_categories['timing'] += 1
-                categorized = True
-            elif any(word in query_lower for word in ['how to', 'technique', 'method', 'way to']):
-                query_categories['technique'] += 1
-                categorized = True
-            elif any(word in query_lower for word in ['air fryer', 'instant pot', 'oven', 'grill', 'slow cooker']):
-                query_categories['appliance'] += 1
-                categorized = True
-            elif any(word in query_lower for word in ['substitute', 'ingredient', 'replace']):
-                query_categories['ingredient'] += 1
-                categorized = True
-
-            if not categorized:
-                query_categories['other'] += 1
-
-        mo.md("### Query Type Distribution")
-    else:
-        query_categories = {}
-    return categorized, q, query_categories, query_lower
-
-
-@app.cell
-def _(mo, px, queries_loaded, query_categories):
-    if queries_loaded and query_categories:
-        # Create interactive pie chart
-        fig = px.pie(
-            values=list(query_categories.values()),
-            names=list(query_categories.keys()),
-            title='Distribution of Query Types',
-            hole=0.4
-        )
-        fig.update_traces(textposition='inside', textinfo='percent+label')
-        fig.update_layout(height=400)
-
-        mo.ui.plotly(fig)
-    else:
-        mo.md("*Query type distribution will appear here*")
-    return (fig,)
-
-
-@app.cell
+@app.cell(column=3, hide_code=True)
 def _(mo):
     mo.md(
         """
         ## Part 4: Evaluate Retrieval Performance
 
+        - **Input**: `synthetic_queries.json` + BM25 retrieval system
+        - **Script**: `scripts/evaluate_retrieval.py`
+        - **Output**: `results/retrieval_evaluation.json`
+        - **Metrics**: Recall@k, MRR
+
+        """
+    )
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md(
+        """
         ### Information Retrieval Metrics
 
         - **Recall@k**: Fraction where target recipe is in top k results
@@ -687,12 +578,25 @@ def _(eval_loaded, failed_queries, failure_index, mo, recipes):
     return failure, failure_details
 
 
-@app.cell
+@app.cell(column=4, hide_code=True)
 def _(mo):
     mo.md(
         """
         ## Part 5: [Optional] Query Rewrite Agent
 
+        - **Input**: Same as #4 + LLM rewriter
+        - **Script**: `scripts/evaluate_retrieval_with_agent.py`
+        - **Output**: `results/retrieval_comparison.json`
+        - **Compares**: Baseline vs rewritten queries
+        """
+    )
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md(
+        """
         ### Motivation for Query Rewriting
 
         Natural language queries often don't match recipe text well:
@@ -797,31 +701,6 @@ def _(comparison, comparison_loaded, mo):
         - Specific appliance or technique queries
         """)
     return best_strategy, improvement
-
-
-@app.cell
-def _(mo):
-    # Example transformations widget
-    example_queries = [
-        "What's the secret to crispy fried chicken?",
-        "How long should I marinate steak?",
-        "Air fryer settings for frozen french fries",
-        "Best way to caramelize onions",
-        "Temperature for baking sourdough bread"
-    ]
-
-    query_selector = mo.ui.select(
-        options=example_queries,
-        value=example_queries[0],
-        label="Select Example Query"
-    )
-
-    mo.md(f"""
-    ### Query Transformation Examples
-
-    {query_selector}
-    """)
-    return example_queries, query_selector
 
 
 @app.cell
