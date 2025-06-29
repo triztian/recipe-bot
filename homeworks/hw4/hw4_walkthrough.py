@@ -426,6 +426,20 @@ def _(mo):
 
 @app.cell(hide_code=True)
 def _(mo):
+    mo.md(
+        r"""
+        1. Takes every query from synthetic_queries.json, searches for recipes using BM25, and checks if the correct recipe appears in the results
+        2. Calculates metrics
+        3. Some automated analysis (do this manually first!)
+
+        **Key intuition:** This is measuring if your search engine can find the right recipe when given a natural language question. Recall measures where the result was found at all, and MRR measures how high up was the result in the ranking.
+        """
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
     mo.md(r"""### Output""")
     return
 
@@ -519,7 +533,7 @@ def _(mo):
         ## Part 5: [Optional] Query Rewrite Agent
 
         - **Input**: Same as #4 + LLM rewriter
-        - **Script**: `scripts/evaluate_retrieval_with_agent.py`
+        - **Script**: `scripts/evaluate_retrieval_with_agent.py` and `query_rewrite_agent.py`
         - **Output**: `results/retrieval_comparison.json`
         - **Compares**: Baseline vs rewritten queries
         """
@@ -527,159 +541,167 @@ def _(mo):
     return
 
 
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""### Script""")
+    return
+
+
 @app.cell
 def _(mo):
     mo.md(
         """
-        ### Motivation for Query Rewriting
+        Compares baseline vs enhanced retrieval - Measures improvement from the best rewriting strategy compared to raw BM25, tracking both successes (queries rescued) and failures (queries hurt)
 
-        Natural language queries often don't match recipe text well:
-        - User: "What's the secret to crispy fried chicken?"
-        - Better for search: "crispy fried chicken coating technique temperature"
-
-        ### Three Rewriting Strategies
+        **Three Rewriting Strategies**
 
         1. **Keyword extraction**: Pull out key cooking terms
         2. **Query rewriting**: Restructure for better search
         3. **Query expansion**: Add synonyms and related terms
+
+        **Key intuition:** This tests whether an LLM can rewrite user queries to better match how recipes are written.
         """
     )
     return
 
 
-@app.cell
-def _(json, mo):
-    # Load comparison results if available
-    try:
-        with open('results/retrieval_comparison.json', 'r') as f:
-            comparison = json.load(f)
-        comparison_loaded = True
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
+        #### Keyword Extraction
+        ---
+        You are a search optimization expert for a recipe database. Given a natural language cooking query, extract the most important keywords that would help find relevant recipes in a BM25 search.
 
-        mo.md("""
-        ### Query Rewrite Performance Comparison
-        """)
-    except FileNotFoundError:
-        comparison = None
-        comparison_loaded = False
-        mo.md("""
-        ### Query Rewrite Results
+        Focus on:
 
-        *No comparison results found. Run evaluateretrievalwitha≥nt.pyevaluate_retrieval_with_agent.py to see enhanced performance.*
-        """)
-    return comparison, comparison_loaded, f
+        1. **Cooking methods** (air fry, bake, grill, sauté, etc.)
+        2. **Equipment/appliances** (air fryer, oven, pressure cooker, etc.)
+        3. **Key ingredients** (chicken, vegetables, pasta, etc.)
+        4. **Cooking specifics** (temperature, time, texture, etc.)
+        5. **Food types** (appetizer, dessert, main dish, etc.)
 
+        Remove filler words and focus on terms that would appear in recipe instructions or ingredients.
 
-@app.cell
-def _(comparison, comparison_loaded, go, mo):
-    if comparison_loaded and comparison:
-        # Create comparison visualization
-        strategies = ['baseline', 'keywords', 'rewrite', 'expand']
-        metrics_to_show = ['recall_at_1', 'recall_at_3', 'recall_at_5', 'mrr']
+        Query: "{query}"
 
-        fig = go.Figure()
-
-        # Add baseline
-        baseline_metrics = comparison['baseline']['metrics']
-        fig.add_trace(go.Bar(
-            name='Baseline BM25',
-            x=['Recall@1', 'Recall@3', 'Recall@5', 'MRR'],
-            y=[baseline_metrics[metric] for metric in metrics_to_show],
-            marker_color='lightblue'
-        ))
-
-        # Add best strategy
-        best_strategy = comparison['best_strategy']
-        best_metrics = comparison['enhanced'][best_strategy]['metrics']
-        fig.add_trace(go.Bar(
-            name=f'Enhanced ({best_strategy})',
-            x=['Recall@1', 'Recall@3', 'Recall@5', 'MRR'],
-            y=[best_metrics[metric] for metric in metrics_to_show],
-            marker_color='darkgreen'
-        ))
-
-        fig.update_layout(
-            title=f'Retrieval Performance: Baseline vs Best Strategy ({best_strategy})',
-            yaxis_title='Score',
-            yaxis_range=[0, 1],
-            barmode='group',
-            height=400
-        )
-
-        mo.ui.plotly(fig)
-    return (
-        baseline_metrics,
-        best_metrics,
-        best_strategy,
-        fig,
-        metrics_to_show,
-        strategies,
+        Important search keywords (space-separated):
+        """
     )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
+        #### Query Rewriting
+        ---
+        You are optimizing a cooking query for recipe search. Rewrite the query to be more effective for finding relevant recipes, focusing on terms that would appear in recipe titles, ingredients, and instructions.
+
+        Guidelines:
+
+        1. Use specific cooking terms instead of vague language
+        2. Include equipment names if mentioned
+        3. Add related cooking techniques
+        4. Use ingredient names that commonly appear in recipes
+        5. Keep it concise but descriptive
+        6. Remove question words (what, how, when) and focus on content
+
+        Original query: "{query}"
+
+        Optimized search query:
+        """
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
+        #### Synonym Expander
+        ---
+        Expand this cooking query by adding relevant synonyms and related cooking terms that might appear in recipes. This helps catch more relevant results in recipe search.
+
+        Add terms that are:
+
+        1. Synonyms for cooking methods mentioned
+        2. Alternative ingredient names
+        3. Related cooking techniques
+        4. Equipment alternatives
+
+        Keep the expansion focused and avoid unrelated terms.
+
+        Original: "{query}"
+
+        Expanded query with synonyms:
+        """
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""### Output""")
+    return
 
 
 @app.cell
-def _(comparison, comparison_loaded, mo):
-    if comparison_loaded and comparison:
-        improvement = comparison['best_improvement']
-        best_strategy = comparison['best_strategy']
-
-        mo.md(f"""
-        ### Performance Summary
-
-        - **Best Strategy**: {best_strategy}
-        - **Overall Improvement**: {improvement:.1f}%
-        - **Processing Time**: {comparison.get('processing_time', 'N/A')}
-
-        The {best_strategy} strategy showed the best results, particularly for:
-        - Queries with vocabulary mismatch
-        - Technical cooking questions
-        - Specific appliance or technique queries
-        """)
-    return best_strategy, improvement
+def _(BASE_PATH, json):
+    rewrite_results = json.load(open(BASE_PATH/'results'/'retrieval_comparison.json', 'r'))
+    rewrite_results
+    return (rewrite_results,)
 
 
 @app.cell
-def _(mo, query_selector):
-    # Show transformations for selected query
-    transformations = {
-        "What's the secret to crispy fried chicken?": {
-            "keywords": "crispy fried chicken secret",
-            "rewritten": "crispy fried chicken coating technique temperature oil",
-            "expanded": "crispy crunchy fried chicken breast thigh coating batter technique temperature deep fry oil"
-        },
-        "How long should I marinate steak?": {
-            "keywords": "marinate steak time",
-            "rewritten": "marinate steak hours time beef marinade",
-            "expanded": "marinate marinade steak beef hours time overnight refrigerate seasoning"
-        },
-        "Air fryer settings for frozen french fries": {
-            "keywords": "air fryer frozen french fries settings",
-            "rewritten": "air fryer temperature time frozen french fries",
-            "expanded": "air fryer temperature degrees time minutes frozen french fries potato crispy"
-        },
-        "Best way to caramelize onions": {
-            "keywords": "caramelize onions best way",
-            "rewritten": "caramelize onions technique heat time",
-            "expanded": "caramelize caramelized onions brown sugar sweet technique low heat time pan"
-        },
-        "Temperature for baking sourdough bread": {
-            "keywords": "temperature baking sourdough bread",
-            "rewritten": "sourdough bread oven temperature degrees",
-            "expanded": "sourdough bread baking temperature degrees fahrenheit oven time dutch oven steam"
-        }
-    }
+def _(pd, rewrite_results):
+    pd.DataFrame(rewrite_results['strategy_comparison'])
+    return
 
-    selected_transforms = transformations.get(query_selector.value, {})
 
+@app.cell
+def _(sys):
+    sys.path.append('backend')
+    from query_rewrite_agent import QueryRewriteAgent
+    return (QueryRewriteAgent,)
+
+
+@app.cell
+def _(QueryRewriteAgent):
+    rewriter = QueryRewriteAgent()
+    return (rewriter,)
+
+
+@app.cell
+def _():
+    query = "How do I make my cookies chewy instead of crunchy?"
+    return (query,)
+
+
+@app.cell(hide_code=True)
+def _(mo, query, rewriter):
     mo.md(f"""
-    **Original**: {query_selector.value}
+    > {query}
 
-    **🔍 Keywords**: {selected_transforms.get('keywords', 'N/A')}
+    **synonyms**
 
-    **✏️ Rewritten**: {selected_transforms.get('rewritten', 'N/A')}
+    {rewriter.expand_query_with_synonyms(query)}
 
-    **📚 Expanded**: {selected_transforms.get('expanded', 'N/A')}
+    **Keywords**
+
+    {rewriter.extract_search_keywords(query)}
+
+    **Rewrite**
+
+    {rewriter.rewrite_for_search(query)}
     """)
-    return selected_transforms, transformations
+    return
+
+
+@app.cell
+def _():
+    return
 
 
 if __name__ == "__main__":
