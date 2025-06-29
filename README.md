@@ -1,141 +1,122 @@
-# Recipe Chatbot
+# Recipe Chatbot - AI Evaluations Course
 
-> 📝 **Note:** This project serves as a foundation for ongoing development throughout the AI Evals course. We will be incrementally adding features and refining its capabilities in subsequent lessons and homework assignments.
+This repository contains a complete AI evaluations course built around a Recipe Chatbot. Through 5 progressive homework assignments, you'll learn practical techniques for evaluating and improving AI systems.
 
-This project provides a starting point for building and evaluating an AI-powered Recipe Chatbot. You will be working with a web application that uses FastAPI for the backend and a simple HTML/CSS/JavaScript frontend. The core of the chatbot involves interacting with a Large Language Model (LLM) via LiteLLM to get recipe recommendations.
+## Quick Start
 
-Your main tasks will be to refine the chatbot's persona and intelligence by crafting a detailed system prompt, expanding its test query dataset, and evaluating its performance.
+1. **Clone & Setup**
+   ```bash
+   git clone https://github.com/ai-evals-course/recipe-chatbot.git
+   cd recipe-chatbot
+   python -m venv .venv
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   pip install -r requirements.txt
+   ```
 
-![Recipe Chatbot UI](./screenshots/hw1.png)
+2. **Configure Environment**
+   ```bash
+   cp env.example .env
+   # Edit .env to add your model and API keys
+   ```
 
-## Table of Contents
+3. **Run the Chatbot**
+   ```bash
+   uvicorn backend.main:app --reload
+   # Open http://127.0.0.1:8000
+   ```
 
-- [Core Components Provided](#core-components-provided)
-- [Project Structure](#project-structure)
-- [Setup Instructions](#setup-instructions)
-- [Running the Provided Application](#running-the-provided-application)
-  - [1. Run the Web Application (Frontend and Backend)](#1-run-the-web-application-frontend-and-backend)
-  - [2. Run the Bulk Test Script](#2-run-the-bulk-test-script)
-- [Homework Assignment 1: Write a Starting Prompt](#homework-assignment-1-write-a-starting-prompt)
+## Course Overview
 
-## Core Components Provided
+### Homework Progression
 
-This initial setup includes:
+1. **HW1: Basic Prompt Engineering** (`homeworks/hw1/`)
+   - Write system prompts and expand test queries
+   - Walkthrough: See HW2 walkthrough for HW1 content
 
-*   **Backend (FastAPI)**: Serves the frontend and provides an API endpoint (`/chat`) for the chatbot logic.
-*   **Frontend (HTML/CSS/JS)**: A basic, modern chat interface where users can send messages and receive responses.
-    *   Renders assistant responses as Markdown.
-    *   Includes a typing indicator for better user experience.
-*   **LLM Integration (LiteLLM)**: The backend connects to an LLM (configurable via `.env`) to generate recipe advice.
-*   **Bulk Testing Script**: A Python script (`scripts/bulk_test.py`) to send multiple predefined queries (from `data/sample_queries.csv`) to the chatbot's core logic and save the responses for evaluation. This script uses `rich` for pretty console output.
+2. **HW2: Error Analysis & Failure Taxonomy** (`homeworks/hw2/`)
+   - Systematic error analysis and failure mode identification
+   - **Interactive Walkthrough**: `homeworks/hw2/hw2_solution_walkthrough.ipynb`
+
+3. **HW3: LLM-as-Judge Evaluation** (`homeworks/hw3/`)
+   - Automated evaluation using the `judgy` library
+   - **Interactive Walkthrough**: `homeworks/hw3/hw3_walkthrough.ipynb`
+
+4. **HW4: RAG/Retrieval Evaluation** (`homeworks/hw4/`)
+   - BM25 retrieval system with synthetic query generation
+   - **Interactive Walkthroughs**: 
+     - `homeworks/hw4/hw4_walkthrough.ipynb` (Jupyter)
+     - `homeworks/hw4/hw4_walkthrough.py` (Marimo)
+
+5. **HW5: Agent Failure Analysis** (`homeworks/hw5/`)
+   - Analyze conversation traces and failure patterns
+
+### Key Features
+
+- **Backend**: FastAPI with LiteLLM (multi-provider LLM support)
+- **Frontend**: Simple chat interface with conversation history
+- **Annotation Tool**: FastHTML-based interface for manual evaluation (`annotation/`)
+- **Retrieval**: BM25-based recipe search (`backend/retrieval.py`)
+- **Query Rewriting**: LLM-powered query optimization (`backend/query_rewrite_agent.py`)
+- **Evaluation Tools**: Automated metrics, bias correction, and analysis scripts
 
 ## Project Structure
 
 ```
 recipe-chatbot/
-├── backend/
-│   ├── __init__.py
-│   ├── main.py         # FastAPI application, routes
-│   └── utils.py        # LiteLLM wrapper, system prompt, env loading
-├── data/
-│   └── sample_queries.csv # Sample queries for bulk testing (ID, Query)
-├── frontend/
-│   └── index.html      # Chat UI (HTML, CSS, JavaScript)
-├── results/            # Output folder for bulk_test.py
-├── scripts/
-│   └── bulk_test.py    # Bulk testing script
-├── .env.example        # Example environment file
-├── env.example         # Backup env example (can be removed if .env.example is preferred)
-├── requirements.txt    # Python dependencies
-└── README.md           # This file (Your guide!)
+├── backend/               # FastAPI app & core logic
+├── frontend/              # Chat UI (HTML/CSS/JS)
+├── homeworks/             # 5 progressive assignments
+│   ├── hw1/              # Prompt engineering
+│   ├── hw2/              # Error analysis (with walkthrough)
+│   ├── hw3/              # LLM-as-Judge (with walkthrough)
+│   ├── hw4/              # Retrieval eval (with walkthroughs)
+│   └── hw5/              # Agent analysis
+├── annotation/            # Manual annotation tools
+├── scripts/               # Utility scripts
+├── data/                  # Datasets and queries
+└── results/               # Evaluation outputs
 ```
 
-## Setup Instructions
+## Running Homework Scripts
 
-1.  **Clone the Repository (if you haven't already)**
-    ```bash
-    git clone https://github.com/ai-evals-course/recipe-chatbot.git
-    cd recipe-chatbot
-    ```
+Each homework includes complete pipelines. For example:
 
-2.  **Create and Activate a Python Virtual Environment**
-    ```bash
-    python -m venv .venv
-    ```
-    *   On macOS/Linux:
-        ```bash
-        source .venv/bin/activate
-        ```
-    *   On Windows:
-        ```bash
-        .venv\Scripts\activate
-        ```
+**HW3 Pipeline:**
+```bash
+cd homeworks/hw3
+python scripts/generate_traces.py
+python scripts/label_data.py
+python scripts/develop_judge.py
+python scripts/evaluate_judge.py
+```
 
-3.  **Install Dependencies**
-    ```bash
-    pip install -r requirements.txt
-    ```
-    
-    > **Note**: The `requirements.txt` includes dependencies for all homework assignments, including advanced evaluation tools like `judgy` for LLM-as-Judge workflows (Homework 3) and machine learning libraries for data analysis.
+**HW4 Pipeline:**
+```bash
+cd homeworks/hw4
+python scripts/process_recipes.py
+python scripts/generate_queries.py
+python scripts/evaluate_retrieval.py
+# Optional: python scripts/evaluate_retrieval_with_agent.py
+```
 
-4.  **Configure Environment Variables (`.env` file)**
-    *   Copy the example environment file:
-        ```bash
-        cp env.example .env
-        ```
-        (or `cp .env.example .env` if you have that one)
-    *   Edit the `.env` file. You will need to:
-        1.  Set the `MODEL_NAME` to the specific model you want to use (e.g., `openai/gpt-4.1-nano`, `anthropic/claude-3-opus-20240229`, `ollama/llama2`).
-        2.  Set the **appropriate API key environment variable** for the chosen model provider. 
-            Refer to your `env.example` for common API key names like `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, etc. 
-            LiteLLM will automatically use these provider-specific keys.
+## Additional Resources
 
-        Example of a configured `.env` file if using an OpenAI model:
-        ```env
-        MODEL_NAME=openai/gpt-4.1-nano
-        OPENAI_API_KEY=sk-yourActualOpenAIKey...
-        ```
-        Example for an Anthropic model:
-        ```env
-        MODEL_NAME=anthropic/claude-3-haiku-20240307
-        ANTHROPIC_API_KEY=sk-ant-yourActualAnthropicKey...
-        ```
+- **Annotation Interface**: Run `python annotation/annotation.py` for manual evaluation
+- **Bulk Testing**: Use `python scripts/bulk_test.py` to test multiple queries
+- **Trace Analysis**: All conversations saved as JSON for analysis
 
-    *   **Important - Model Naming and API Keys with LiteLLM**:
-        LiteLLM supports a wide array of model providers. To use a model from a specific provider, you generally need to:
-        *   **Prefix the `MODEL_NAME`** correctly (e.g., `openai/`, `anthropic/`, `mistral/`, `ollama/`).
-        *   **Set the corresponding API key variable** in your `.env` file (e.g., `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `MISTRAL_API_KEY`). Some local models like Ollama might not require an API key.
+## Environment Variables
 
-        Please refer to the official LiteLLM documentation for the correct model prefixes and required environment variables for your chosen provider: [LiteLLM Supported Providers](https://docs.litellm.ai/docs/providers).
+Configure your `.env` file with:
+- `MODEL_NAME`: LLM model (e.g., `openai/gpt-4`, `anthropic/claude-3-haiku-20240307`)
+- API keys: `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, etc.
 
-## Running the Provided Application
+See [LiteLLM docs](https://docs.litellm.ai/docs/providers) for supported providers.
 
-### 1. Run the Web Application (Frontend and Backend)
+## Course Philosophy
 
-*   Ensure your virtual environment is activated and your `.env` file is configured.
-*   From the project root directory, start the FastAPI server using Uvicorn:
-    ```bash
-    uvicorn backend.main:app --reload
-    ```
-*   Open your web browser and navigate to: `http://127.0.0.1:8000`
-
-    You should see the chat interface.
-
-
-### 2. Run the Bulk Test Script
-
-The bulk test script allows you to evaluate your chatbot's responses to a predefined set of queries. It sends queries from `data/sample_queries.csv` directly to the backend agent logic and saves the responses to the `results/` directory.
-
-*   Ensure your virtual environment is activated and your `.env` file is configured.
-*   From the project root directory, run:
-    ```bash
-    python scripts/bulk_test.py
-    ```
-*   To use a different CSV file for queries:
-    ```bash
-    python scripts/bulk_test.py --csv path/to/your/queries.csv
-    ```
-    The CSV file must have `id` and `query` columns.
-*   Check the `results/` folder for a new CSV file containing the IDs, queries, and their corresponding responses. This will be crucial for evaluating your system prompt changes.
-
----
+This course emphasizes:
+- **Practical experience** over theory
+- **Systematic evaluation** over "vibes"
+- **Progressive complexity** - each homework builds on previous work
+- **Industry-standard techniques** for real-world AI evaluation
