@@ -413,20 +413,33 @@ def _(mo):
         - **Script**: `scripts/evaluate_retrieval.py`
         - **Output**: `results/retrieval_evaluation.json`
         - **Metrics**: Recall@k, MRR
-
         """
     )
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""### Script""")
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""### Output""")
+    return
+
+
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(
         """
-        ### Information Retrieval Metrics
+        #### Information Retrieval Metrics
 
-        - **Recall@k**: Fraction where target recipe is in top k results
-        - **MRR (Mean Reciprocal Rank)**: Average of 1/rank for each query
+        **Recall@k**: Fraction where target recipe is in top k results
+
+        **MRR (Mean Reciprocal Rank)**: Average of 1/rank for each query
+
           - If target at rank 1: contributes 1.0
           - If target at rank 3: contributes 0.33
           - If not in top k: contributes 0
@@ -436,146 +449,67 @@ def _(mo):
 
 
 @app.cell
-def _(json, mo):
-    # Load evaluation results
-    try:
-        with open('results/retrieval_evaluation.json', 'r') as f:
-            eval_results = json.load(f)
-        eval_loaded = True
-
-        metrics = eval_results['metrics']
-
-        mo.md(f"""
-        ### Retrieval Performance Results
-
-        - **Recall@1**: {metrics['recall_at_1']:.3f} ({metrics['recall_at_1']*100:.1f}%)
-        - **Recall@3**: {metrics['recall_at_3']:.3f} ({metrics['recall_at_3']*100:.1f}%)
-        - **Recall@5**: {metrics['recall_at_5']:.3f} ({metrics['recall_at_5']*100:.1f}%)
-        - **MRR**: {metrics['mrr']:.3f}
-        """)
-    except FileNotFoundError:
-        eval_results = None
-        eval_loaded = False
-        metrics = None
-        mo.md("⚠️ **Evaluation results not found.** Run evaluateretrieval.pyevaluate_retrieval.py first.")
-    return eval_loaded, eval_results, f, metrics
+def _(BASE_PATH, json):
+    eval_results = json.load(open(BASE_PATH/'results'/'retrieval_evaluation.json', 'r'))
+    eval_results
+    return (eval_results,)
 
 
 @app.cell
-def _(eval_loaded, go, metrics, mo):
-    if eval_loaded and metrics:
-        # Create interactive recall curve
-        k_values = [1, 3, 5]
-        recall_values = [metrics['recall_at_1'], metrics['recall_at_3'], metrics['recall_at_5']]
+def _(eval_results, mo):
+    metrics = eval_results['evaluation_summary']
 
-        fig = go.Figure()
+    mo.md(f"""
+    #### Retrieval Performance Results
 
-        # Add line trace
-        fig.add_trace(go.Scatter(
-            x=k_values,
-            y=recall_values,
-            mode='lines+markers+text',
-            name='Recall@k',
-            line=dict(color='blue', width=3),
-            marker=dict(size=12),
-            text=[f'{val:.3f}' for val in recall_values],
-            textposition='top center'
-        ))
-
-        # Add ideal line
-        fig.add_trace(go.Scatter(
-            x=[1, 5],
-            y=[1, 1],
-            mode='lines',
-            name='Perfect Retrieval',
-            line=dict(color='green', width=2, dash='dash')
-        ))
-
-        fig.update_layout(
-            title='BM25 Retrieval Performance',
-            xaxis_title='k (Top-k results)',
-            yaxis_title='Recall@k',
-            yaxis_range=[0, 1.1],
-            xaxis=dict(tickmode='array', tickvals=k_values),
-            height=400,
-            hovermode='x'
-        )
-
-        mo.ui.plotly(fig)
-    else:
-        mo.md("*Performance visualization will appear here*")
-    return fig, k_values, recall_values
+    - **Recall@1**: {metrics['recall_at_1']:.3f} ({metrics['recall_at_1']*100:.1f}%)
+    - **Recall@3**: {metrics['recall_at_3']:.3f} ({metrics['recall_at_3']*100:.1f}%)
+    - **Recall@5**: {metrics['recall_at_5']:.3f} ({metrics['recall_at_5']*100:.1f}%)
+    - **MRR**: {metrics['mrr']:.3f}
+    """)
+    return (metrics,)
 
 
 @app.cell
-def _(eval_loaded, eval_results, mo):
-    if eval_loaded and eval_results:
-        # Analyze failures
-        failed_queries = [r for r in eval_results['results'] if r['rank'] is None or r['rank'] > 5]
+def _(mo, synthetic_queries):
+    # Create query selector
+    query_selector2 = mo.ui.slider(
+        start=0,
+        stop=len(synthetic_queries)-1,
+        value=0,
+        label="Query Index",
+        show_value=True
+    )
 
-        mo.md(f"""
-        ### Failure Analysis
+    mo.md(f"""
+    #### Browse Queries
 
-        - **Total queries evaluated**: {len(eval_results['results'])}
-        - **Failed queries (not in top 5)**: {len(failed_queries)} ({len(failed_queries)/len(eval_results['results'])*100:.1f}%)
-
-        Common failure patterns:
-        - **Vocabulary mismatch**: Query uses different terms than recipe
-        - **Specificity**: Query too specific for BM25 keyword matching
-        - **Context**: Query implies context not in recipe text
-        """)
-    else:
-        failed_queries = []
-    return (failed_queries,)
+    {query_selector2}
+    """)
+    return (query_selector2,)
 
 
 @app.cell
-def _(eval_loaded, failed_queries, mo):
-    if eval_loaded and failed_queries:
-        # Create failure examples selector
-        n_failures = min(len(failed_queries), 10)
-        failure_index = mo.ui.slider(
-            start=0,
-            stop=n_failures-1,
-            value=0,
-            label="Browse Failed Queries",
-            show_value=True
-        )
+def _(eval_results, mo, query_selector2):
+    # Display selected query
+    selected2 = eval_results['detailed_results'][query_selector2.value]
 
-        mo.md(f"""
-        ### Failed Query Examples
+    mo.md(f"""
+    **🔍 Query Text:**
+    > {selected2['original_query']}
 
-        {failure_index}
-        """)
-    else:
-        failure_index = None
-    return failure_index, n_failures
+    {selected2['salient_fact']}
+
+    **🎯 Target Recipe:** {selected2['target_recipe_name']} (ID: {selected2['target_recipe_id']})
 
 
-@app.cell
-def _(eval_loaded, failed_queries, failure_index, mo, recipes):
-    if eval_loaded and failure_index is not None and failed_queries:
-        failure = failed_queries[failure_index.value]
+    **🎯 Retrieved Recipes:** 
 
-        failure_details = f"""
-        **Failed Query #{failure_index.value + 1}**
+    {'<br>'.join(selected2['retrieved_names'])}
 
-        ❌ **Query**: "{failure['query']}"
 
-        🎯 **Expected**: {recipes[failure['recipe_index']]['name']}
-        """
-
-        if failure['retrieved_indices']:
-            failure_details += f"""
-
-        📋 **Top 3 Retrieved Instead**:
-        1. {recipes[failure['retrieved_indices'][0]]['name']}
-        2. {recipes[failure['retrieved_indices'][1]]['name'] if len(failure['retrieved_indices']) > 1 else 'N/A'}
-        3. {recipes[failure['retrieved_indices'][2]]['name'] if len(failure['retrieved_indices']) > 2 else 'N/A'}
-        """
-
-        mo.md(failure_details)
-    return failure, failure_details
+    """)
+    return (selected2,)
 
 
 @app.cell(column=4, hide_code=True)
@@ -746,60 +680,6 @@ def _(mo, query_selector):
     **📚 Expanded**: {selected_transforms.get('expanded', 'N/A')}
     """)
     return selected_transforms, transformations
-
-
-@app.cell
-def _(mo):
-    mo.md(
-        """
-        ## Key Takeaways
-
-        ### 1. Retrieval is Critical for RAG
-        - If relevant docs aren't retrieved, LLM can't use them
-        - BM25 is simple but effective baseline
-        - Measure with standard IR metrics
-
-        ### 2. Synthetic Queries Enable Evaluation
-        - Extract facts from documents
-        - Generate queries that need those facts
-        - Ensures ground truth for evaluation
-
-        ### 3. Query-Document Mismatch is Common
-        - Users ask questions differently than docs are written
-        - Query rewriting can bridge this gap
-        - But adds complexity and latency
-
-        ### 4. Always Measure Baselines First
-        - Simple BM25 often works surprisingly well
-        - Understand failure modes before adding complexity
-        - Incremental improvements compound
-        """
-    )
-    return
-
-
-@app.cell
-def _(mo):
-    mo.md(
-        """
-        ## Practical Tips for Your Implementation
-
-        - **Start simple**: Get basic BM25 working first
-        - **Look at your data**: Examine queries that fail
-        - **Parallel processing**: Use ThreadPoolExecutor for LLM calls
-        - **Cache aggressively**: Save indices and results
-        - **Test incrementally**: Verify each component works
-
-        ### Next Steps
-
-        1. Run processrecipes.pyprocess_recipes.py to prepare your data
-        2. Implement BM25 retrieval in backendretrieval.pybackend/retrieval.py
-        3. Generate synthetic queries with ≥≠ratequeries.pygenerate_queries.py
-        4. Evaluate with evaluateretrieval.pyevaluate_retrieval.py
-        5. (Optional) Try query rewriting for better performance
-        """
-    )
-    return
 
 
 if __name__ == "__main__":
