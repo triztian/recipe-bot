@@ -138,7 +138,7 @@ homeworks/hw5/
 
 Here's an example of what your failure transition heatmap should look like:
 
-![Failure Transition Heatmap](https://github.com/user-attachments/assets/example-heatmap.png)
+![Failure Transition Heatmap](https://raw.githubusercontent.com/ai-evals-course/recipe-chatbot/refs/heads/main/homeworks/hw5/results/visualizations/failure_transition_heatmap.png)
 
 This reference heatmap shows:
 - **FetchRecipes → RecipeToolError**: 51 failures (most common - recipe query formulation issues)
