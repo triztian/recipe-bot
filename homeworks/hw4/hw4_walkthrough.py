@@ -57,6 +57,8 @@ def _(mo):
         - Generating synthetic queries for evaluation
         - Measuring retrieval performance with standard IR metrics
         - (Optional) Using LLM query rewriting to improve retrieval
+
+        For a recording of the homework walkthrough please see: https://youtu.be/GMShL5iC8aY
         """
     )
     return
