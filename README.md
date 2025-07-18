@@ -44,13 +44,13 @@ This repository contains a complete AI evaluations course built around a Recipe 
    - Automated evaluation using the `judgy` library
    - **Interactive Walkthrough**:
       - Code: `homeworks/hw3/hw3_walkthrough.ipynb`
-      - [video](https://youtu.be/1d5aNfslwHg)
+      - [video](https://youtu.be/1d5aNfslwHg): walkthrough of solution
 
 4. **HW4: RAG/Retrieval Evaluation** (`homeworks/hw4/`)
    - BM25 retrieval system with synthetic query generation
    - **Interactive Walkthroughs**: 
      - `homeworks/hw4/hw4_walkthrough.py` (Marimo)
-     - [video](https://youtu.be/GMShL5iC8aY)
+     - [video](https://youtu.be/GMShL5iC8aY): walkthrough of solution
 
 5. **HW5: Agent Failure Analysis** (`homeworks/hw5/`)
    - Analyze conversation traces and failure patterns
