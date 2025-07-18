@@ -35,19 +35,28 @@ This repository contains a complete AI evaluations course built around a Recipe 
 
 2. **HW2: Error Analysis & Failure Taxonomy** (`homeworks/hw2/`)
    - Systematic error analysis and failure mode identification
-   - **Interactive Walkthrough**: `homeworks/hw2/hw2_solution_walkthrough.ipynb`
+   - **Interactive Walkthrough**:
+      - Code: `homeworks/hw2/hw2_solution_walkthrough.ipynb`
+      - [video 1](https://youtu.be/h9oAAAYnGx4?si=fWxN3NtpSbdD55cW): walkthrough of code
+      - [video 2](https://youtu.be/AKg27L4E0M8) : open & axial coding walkthrough
 
 3. **HW3: LLM-as-Judge Evaluation** (`homeworks/hw3/`)
    - Automated evaluation using the `judgy` library
-   - **Interactive Walkthrough**: `homeworks/hw3/hw3_walkthrough.ipynb`
+   - **Interactive Walkthrough**:
+      - Code: `homeworks/hw3/hw3_walkthrough.ipynb`
+      - [video](https://youtu.be/1d5aNfslwHg)
 
 4. **HW4: RAG/Retrieval Evaluation** (`homeworks/hw4/`)
    - BM25 retrieval system with synthetic query generation
    - **Interactive Walkthroughs**: 
      - `homeworks/hw4/hw4_walkthrough.py` (Marimo)
+     - [video](https://youtu.be/GMShL5iC8aY)
 
 5. **HW5: Agent Failure Analysis** (`homeworks/hw5/`)
    - Analyze conversation traces and failure patterns
+   - **Interactive Walkthroughs**:
+      - `homeworks/hw5/hw5_walkthrough.py` (Marimo)
+      - [video]() 
 
 ### Key Features
 
