@@ -56,7 +56,7 @@ This repository contains a complete AI evaluations course built around a Recipe 
    - Analyze conversation traces and failure patterns
    - **Interactive Walkthroughs**:
       - `homeworks/hw5/hw5_walkthrough.py` (Marimo)
-      - [video]() 
+      - [video](https://youtu.be/z1oISsDUKLA) 
 
 ### Key Features
 
