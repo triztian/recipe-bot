@@ -30,21 +30,30 @@ app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 # Request / response models
 # -----------------------------------------------------------------------------
 
+
 class ChatMessage(BaseModel):
     """Schema for a single message in the chat history."""
-    role: str = Field(..., description="Role of the message sender (system, user, or assistant).")
+
+    role: str = Field(
+        ..., description="Role of the message sender (system, user, or assistant)."
+    )
     content: str = Field(..., description="Content of the message.")
+
 
 class ChatRequest(BaseModel):
     """Schema for incoming chat messages."""
 
-    messages: List[ChatMessage] = Field(..., description="The entire conversation history.")
+    messages: List[ChatMessage] = Field(
+        ..., description="The entire conversation history."
+    )
 
 
 class ChatResponse(BaseModel):
     """Schema for the assistant's reply returned to the front-end."""
 
-    messages: List[ChatMessage] = Field(..., description="The updated conversation history.")
+    messages: List[ChatMessage] = Field(
+        ..., description="The updated conversation history."
+    )
 
 
 # -----------------------------------------------------------------------------
@@ -59,7 +68,9 @@ async def chat_endpoint(payload: ChatRequest) -> ChatResponse:  # noqa: WPS430
     It proxies the user's message list to the underlying agent and returns the updated list.
     """
     # Convert Pydantic models to simple dicts for the agent
-    request_messages: List[Dict[str, str]] = [msg.model_dump() for msg in payload.messages]
+    request_messages: List[Dict[str, str]] = [
+        msg.model_dump() for msg in payload.messages
+    ]
 
     try:
         updated_messages_dicts = get_agent_response(request_messages)
@@ -70,7 +81,9 @@ async def chat_endpoint(payload: ChatRequest) -> ChatResponse:  # noqa: WPS430
             detail=str(exc),
         ) from exc
 
-    response = ChatResponse(messages=[ChatMessage(**msg) for msg in updated_messages_dicts])
+    response = ChatResponse(
+        messages=[ChatMessage(**msg) for msg in updated_messages_dicts]
+    )
 
     # Save trace (request and response) in one place
     traces_dir = Path(__file__).parent.parent / "annotation" / "traces"
@@ -78,10 +91,9 @@ async def chat_endpoint(payload: ChatRequest) -> ChatResponse:  # noqa: WPS430
     ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")
     trace_path = traces_dir / f"trace_{ts}.json"
     with open(trace_path, "w") as f:
-        json.dump({
-            "request": payload.model_dump(),
-            "response": response.model_dump()
-        }, f)
+        json.dump(
+            {"request": payload.model_dump(), "response": response.model_dump()}, f
+        )
 
     return response
 
@@ -97,4 +109,4 @@ async def index() -> HTMLResponse:  # noqa: WPS430
             detail="Frontend not found. Did you forget to build it?",
         )
 
-    return HTMLResponse(html_path.read_text(encoding="utf-8")) 
+    return HTMLResponse(html_path.read_text(encoding="utf-8"))

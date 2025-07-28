@@ -99,6 +99,7 @@ def plot_heatmap(matrix: np.ndarray):
 # CLI
 # -----------------------------------------------------------------------------
 
+
 def main() -> None:
     traces = load_labeled_traces()
     matrix = build_transition_matrix(traces)
@@ -119,4 +120,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main() 
+    main()

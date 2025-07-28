@@ -25,7 +25,10 @@ MODEL_NAME: Final[str] = os.environ.get("MODEL_NAME", "gpt-4o-mini")
 
 # --- Agent wrapper ---------------------------------------------------------------
 
-def get_agent_response(messages: List[Dict[str, str]]) -> List[Dict[str, str]]:  # noqa: WPS231
+
+def get_agent_response(
+    messages: List[Dict[str, str]],
+) -> List[Dict[str, str]]:  # noqa: WPS231
     """Call the underlying large-language model via *litellm*.
 
     Parameters
@@ -50,14 +53,15 @@ def get_agent_response(messages: List[Dict[str, str]]) -> List[Dict[str, str]]: 
 
     completion = litellm.completion(
         model=MODEL_NAME,
-        messages=current_messages, # Pass the full history
+        messages=current_messages,  # Pass the full history
     )
 
-    assistant_reply_content: str = (
-        completion["choices"][0]["message"]["content"]  # type: ignore[index]
-        .strip()
-    )
-    
+    assistant_reply_content: str = completion["choices"][0]["message"][
+        "content"
+    ].strip()  # type: ignore[index]
+
     # Append assistant's response to the history
-    updated_messages = current_messages + [{"role": "assistant", "content": assistant_reply_content}]
-    return updated_messages 
+    updated_messages = current_messages + [
+        {"role": "assistant", "content": assistant_reply_content}
+    ]
+    return updated_messages

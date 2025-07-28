@@ -55,16 +55,16 @@ STATE_INDEX = {s: i for i, s in enumerate(PIPELINE_STATES)}
 
 # Non-uniform sampling weights for FIRST failure state (must align with list)
 FAILURE_WEIGHTS: List[int] = [
-    6,   # ParseRequest
-    5,   # PlanToolCalls
+    6,  # ParseRequest
+    5,  # PlanToolCalls
     10,  # GenCustomerArgs
     12,  # GetCustomerProfile
     15,  # GenRecipeArgs
     30,  # GetRecipes
-    7,   # GenWebArgs
-    9,   # GetWebInfo
-    5,   # ComposeResponse
-    1,   # DeliverResponse
+    7,  # GenWebArgs
+    9,  # GetWebInfo
+    5,  # ComposeResponse
+    1,  # DeliverResponse
 ]
 
 assert len(FAILURE_WEIGHTS) == len(
@@ -82,7 +82,14 @@ LABELED_TRACES_PATH = DATA_DIR / "labeled_traces.json"
 # LLM helper via litellm
 # -------------------------------------------------------------
 
-def chat_completion(messages: List[Dict[str, str]], *, max_tokens: int = 256, temperature: float = 0.7, **kwargs) -> str:
+
+def chat_completion(
+    messages: List[Dict[str, str]],
+    *,
+    max_tokens: int = 256,
+    temperature: float = 0.7,
+    **kwargs,
+) -> str:
     """Wrapper around litellm.completion returning content string."""
     resp = litellm.completion(
         model=MODEL,
@@ -98,6 +105,7 @@ def chat_completion(messages: List[Dict[str, str]], *, max_tokens: int = 256, te
 # -------------------------------------------------------------
 
 # 1. State sampling helpers ----------------------------------------------------
+
 
 def pick_first_failure_state() -> str:
     """Sample first_failure_state using predefined weights."""
@@ -135,7 +143,7 @@ FAILURE_TEMPLATES: Dict[str, str] = {
     "GenWebArgs": "TOOL_CALL[GenWebArgs] Error: failed to construct valid search terms.",
     "GetWebInfo": "TOOL_CALL[GetWebInfo] Error: HTTP 503 – service unavailable.",
     "ComposeResponse": "Traceback (most recent call last): KeyError: 'proteinCount' during response assembly.",
-    "DeliverResponse": "…"  # DeliverResponse failure will manifest as an empty / partial response.
+    "DeliverResponse": "…",  # DeliverResponse failure will manifest as an empty / partial response.
 }
 
 
@@ -192,7 +200,10 @@ def build_conversation(last_success: str, first_failure: str) -> List[Dict[str, 
 
 # 3. LLM-based conversation generation ---------------------------------------
 
-def generate_conversation_llm(last_success: str, first_failure: str) -> List[Dict[str, str]]:
+
+def generate_conversation_llm(
+    last_success: str, first_failure: str
+) -> List[Dict[str, str]]:
     """Use GPT via litellm to craft a coherent conversation trace."""
 
     # Provide examples for tool call formatting and error examples
@@ -258,9 +269,11 @@ def generate_conversation_llm(last_success: str, first_failure: str) -> List[Dic
 
     return msgs
 
+
 # -------------------------------------------------------------
 # Main generation routine
 # -------------------------------------------------------------
+
 
 def generate_traces(
     n_traces: int = N_TRACES_DEFAULT,
@@ -303,7 +316,9 @@ def generate_traces(
 
     with ThreadPoolExecutor(max_workers=workers) as executor:
         futures = [executor.submit(make_trace, i) for i in range(n_traces)]
-        for fut in tqdm(as_completed(futures), total=n_traces, desc="Generating traces"):
+        for fut in tqdm(
+            as_completed(futures), total=n_traces, desc="Generating traces"
+        ):
             try:
                 raw_obj, labeled_obj = fut.result()
                 raw_traces.append(raw_obj)
@@ -318,12 +333,20 @@ def generate_traces(
 # CLI Entry
 # -------------------------------------------------------------
 
+
 def main():
     import argparse
 
     parser = argparse.ArgumentParser(description="Generate synthetic HW5 traces.")
-    parser.add_argument("--n", type=int, default=N_TRACES_DEFAULT, help="number of traces to generate (default 100)")
-    parser.add_argument("--seed", type=int, default=None, help="random seed for reproducibility")
+    parser.add_argument(
+        "--n",
+        type=int,
+        default=N_TRACES_DEFAULT,
+        help="number of traces to generate (default 100)",
+    )
+    parser.add_argument(
+        "--seed", type=int, default=None, help="random seed for reproducibility"
+    )
     args = parser.parse_args()
 
     # Load env vars
@@ -345,4 +368,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main() 
+    main()
